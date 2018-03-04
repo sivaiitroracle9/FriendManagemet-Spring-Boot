@@ -1,4 +1,6 @@
 # FriendManagemet-Spring-Boot
+This is basic Friend Management API server system. Built on Spring Boot, Docker, MySQL DB.
+
 
 ### Steps to run the Application :
 1. Build the project using from **FriendManagemet-Spring-Boot/application**: `mvn clean install`
