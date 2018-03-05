@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import(value = { ApplicationConfig.class })
+@Import(value = { ApplicationConfig.class, SwaggerConfig.class })
 @EnableAutoConfiguration
 public class App 
 {

@@ -8,22 +8,16 @@ import java.util.stream.Collectors;
 import org.spgroup.dao.FriendDao;
 import org.spgroup.dao.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 
 public class FriendServiceImpl implements FriendService {
 
 	@Autowired
 	FriendDao dao;
-	
+
 	@Override
 	public boolean addFriends(List<String> users) {
-		try{
-			dao.addConnection(new User(users.get(0)), new User(users.get(1)));
-			return true;
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		return false;
+		dao.addConnection(new User(users.get(0)), new User(users.get(1)));
+		return true;
 	}
 
 	@Override
@@ -36,47 +30,39 @@ public class FriendServiceImpl implements FriendService {
 	public List<String> getCommonFriends(List<String> users) {
 		Set<String> f1 = new HashSet<String>(getFriends(users.get(0)));
 		Set<String> f2 = new HashSet<String>(getFriends(users.get(1)));
-		return f1.stream().filter(f -> f2.contains(f)).collect(Collectors.toList());
+		return f1.stream().filter(f -> f2.contains(f))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean subscribe(String requestor, String target) {
-		try {
-			User user1 = dao.findUserByEmail(requestor);
-			User user2 = dao.findUserByEmail(target);
-			if (user1 == null || user1.getId() == null) {
-				user1 = dao.addUser(new User(requestor));
-			}
-
-			if (user2 == null || user2.getId() == null) {
-				user2 = dao.addUser(new User(target));
-			}
-			dao.subscribe(user1, user2);
-			return true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
+		User user1 = dao.findUserByEmail(requestor);
+		User user2 = dao.findUserByEmail(target);
+		if (user1 == null || user1.getId() == null) {
+			user1 = dao.addUser(new User(requestor));
 		}
-		return false;
+
+		if (user2 == null || user2.getId() == null) {
+			user2 = dao.addUser(new User(target));
+		}
+		dao.subscribe(user1, user2);
+		return true;
+
 	}
 
 	@Override
 	public boolean block(String requestor, String target) {
-		try {
-			User user1 = dao.findUserByEmail(requestor);
-			User user2 = dao.findUserByEmail(target);
-			if (user1 == null || user1.getId() == null) {
-				user1 = dao.addUser(new User(requestor));
-			}
-
-			if (user2 == null || user2.getId() == null) {
-				user2 = dao.addUser(new User(target));
-			}
-			dao.block(user1, user2);
-			return true;
-		} catch (DataAccessException e) {
-			e.printStackTrace();
+		User user1 = dao.findUserByEmail(requestor);
+		User user2 = dao.findUserByEmail(target);
+		if (user1 == null || user1.getId() == null) {
+			user1 = dao.addUser(new User(requestor));
 		}
-		return false;
+
+		if (user2 == null || user2.getId() == null) {
+			user2 = dao.addUser(new User(target));
+		}
+		dao.block(user1, user2);
+		return true;
 	}
 
 	@Override
