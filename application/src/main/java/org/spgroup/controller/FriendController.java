@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spgroup.common.ApiException;
 import org.spgroup.common.EntityConstants;
+import org.spgroup.common.ErrorResponse;
 import org.spgroup.common.InputValidator;
+import org.spgroup.common.Response;
 import org.spgroup.request.SendRequest;
 import org.spgroup.request.UpdateRequest;
 import org.spgroup.response.FriendsResponse;
@@ -14,6 +16,7 @@ import org.spgroup.response.RecipientsResponse;
 import org.spgroup.response.SuccessResponse;
 import org.spgroup.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,7 +38,7 @@ public class FriendController {
 
 	@ResponseBody
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public SuccessResponse add(@RequestBody List<String> friends)
+	public Response add(@RequestBody List<String> friends)
 			throws ApiException {
 		InputValidator.friends(friends);
 		try {
@@ -43,15 +46,13 @@ public class FriendController {
 
 			return new SuccessResponse(success);
 		} catch (Exception e) {
-
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/friends", method = RequestMethod.GET)
-	public FriendsResponse friends(
+	public Response friends(
 			@RequestParam(name = "email", required = true) String email)
 			throws ApiException {
 		InputValidator.email(email);
@@ -60,14 +61,13 @@ public class FriendController {
 			List<String> friends = friendService.getFriends(email);
 			return new FriendsResponse(friends);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/common", method = RequestMethod.POST)
-	public FriendsResponse common(@RequestBody List<String> friends)
+	public Response common(@RequestBody List<String> friends)
 			throws ApiException {
 		InputValidator.friends(friends);
 
@@ -75,15 +75,14 @@ public class FriendController {
 			List<String> common = friendService.getCommonFriends(friends);
 			return new FriendsResponse(common);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/subscribe", method = RequestMethod.POST)
-	public SuccessResponse subscribe(@RequestBody UpdateRequest request)
+	public Response subscribe(@RequestBody UpdateRequest request)
 			throws ApiException {
 		InputValidator.email(request.getRequestor(), request.getTarget());
 
@@ -92,14 +91,13 @@ public class FriendController {
 					request.getTarget());
 			return new SuccessResponse(success);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/block", method = RequestMethod.POST)
-	public SuccessResponse block(@RequestBody UpdateRequest request)
+	public Response block(@RequestBody UpdateRequest request)
 			throws ApiException {
 		InputValidator.email(request.getRequestor(), request.getTarget());
 
@@ -108,15 +106,14 @@ public class FriendController {
 					request.getTarget());
 			return new SuccessResponse(success);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/recipients", method = RequestMethod.POST)
-	public RecipientsResponse recipients(@RequestBody SendRequest message)
+	public Response recipients(@RequestBody SendRequest message)
 			throws ApiException {
 		InputValidator.email(message.getSender());
 
@@ -127,9 +124,16 @@ public class FriendController {
 				return new RecipientsResponse(false, null);
 			return new RecipientsResponse(true, recipients);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw e;
+			return error(e);
 		}
 
+	}
+	private Response error(Exception e){
+		logger.error(e.getMessage());
+		ErrorResponse response = new ErrorResponse();
+		response.setErrorcode(HttpStatus.INTERNAL_SERVER_ERROR);
+		response.setMessage(e.getMessage());
+		response.setSuccess(false);
+		return response;
 	}
 }

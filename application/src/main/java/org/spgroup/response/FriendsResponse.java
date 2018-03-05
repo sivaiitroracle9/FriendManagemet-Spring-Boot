@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.spgroup.common.Response;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FriendsResponse {
+public class FriendsResponse implements Response {
 
 	private boolean success;
 	private List<String> friends;
